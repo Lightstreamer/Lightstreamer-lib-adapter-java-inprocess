@@ -1,6 +1,17 @@
 # Lightstreamer Changelog - SDK for Java In-Process Adapters
 
 
+## [8.1.0] (xx-xx-xxxx)
+
+*Compatible with Lightstreamer Server since xxxxx*
+*Compatible with code developed with the previous version.*  
+
+**New Features**
+
+- Extended the ItemEventListener with the forceSubscription method, which allows for enforcing the subscription of an item regardless of client activity.
+Also added a unforceSubscription, which cancels the effect of forceSubscription, for completeness.
+
+
 ## [8.0.1] (07-05-2026)
 
 *Compatible with Lightstreamer Server since 7.4.*

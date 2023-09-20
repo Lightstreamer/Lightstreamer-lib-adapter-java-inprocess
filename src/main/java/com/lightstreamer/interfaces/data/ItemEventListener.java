@@ -18,6 +18,8 @@ package com.lightstreamer.interfaces.data;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.lightstreamer.interfaces.metadata.Mode;
+
 import java.util.Map;
 
 /**
@@ -387,6 +389,73 @@ public interface ItemEventListener {
      * @see SmartDataProvider
      */
     public void smartDeclareFieldDiffOrder(@Nonnull Object itemHandle, @Nonnull Map<String, DiffAlgorithm[]> algorithmsMap);
+
+    /**
+     * Causes an Item to be subscribed to this Data Adapter (if not already)
+     * and prevents the Unsubscription until a corresponding unforcing is issued.
+     * In practice, after the method has returned (and provided that
+     * {@link #unforceSubscription(String)} has not been concurrently invoked),
+     * it is guaranteed that the Item is currently subscribed to (unless the
+     * subscription process itself failed for some reason).
+     * <BR>
+     * It can be used, for instance, when the Adapter implementation cannot
+     * support the subscription-on-demand paradigm.
+     * A typical use case is when Unsubscriptions and later re-Subscriptions
+     * cannot be handled correctly, hence Unsubscriptions should be prevented.
+     * Another use case is when it is not possible to ask the feed for data
+     * of a specific Item upon the {@link DataProvider#subscribe(String, boolean)}
+     * call, but the feed can only
+     * supply data for all Items since the beginning; in this case, updates
+     * received before the subscription should be kept by the Adapter to
+     * determine the Item's snapshot to be supplied upon subscribe();
+     * however, by enforcing subscription of the affected Items in advance,
+     * the Kernel will take care of keeping the snapshot.
+     * In an extreme case of this kind, the Items themselves may not be known
+     * until their first event is received from the feed; in this case, the
+     * Adapter, upon the first event for an Item, can invoke forceSubscription
+     * first and, after termination, send the event (and any subsequent ones)
+     * to the listener.
+     * <BR>
+     * Note that, as said, if the Item is not currently subscribed to,
+     * this invocation causes the Kernel to invoke {@link DataProvider#subscribe(String, boolean)}.
+     * In this case, the invocation will return only after subscribe() has returned.
+     * However, as a consequence, the method cannot be invoked in callback
+     * inside {@link DataProvider#subscribe(String, boolean)}, because this
+     * would cause a deadlock.
+     * <BR>
+     * Also note that the Item {@link com.lightstreamer.interfaces.metadata.Mode}
+     * (which affects how Lightstreamer Kernel interprets the snapshot and
+     * subsequent updates) cannot be enforced, because it must be consistent
+     * with the Metadata Adapter's
+     * {@link com.lightstreamer.interfaces.metadata.MetadataProvider#modeMayBeAllowed}
+     * method. The Mode used for the current subscription is returned for
+     * reference.
+     *
+     * @param itemName  The name of the Item whose Subscription should be enforced.
+     * 
+     * @return The Mode used by Lightstreamer Kernel to handle the subscription
+     *          currently in place. It can be null if the subscription failed,
+     *          or in case of a concurrent unforce.
+     */
+    public Mode forceSubscription(@Nonnull String itemName);
+
+    /**
+     * Cancels a previous Subscription enforcement for an Item, if present.
+     * As a consequence, the Subscription may or may not remain forced,
+     * depending on the number of enforcements currently in place.
+     * Note that, if no enforcement is currently in place for the Item,
+     * the invocation will have no effect.
+     * <BR>
+     * If the invocation clears the enforcement and no real Client is currently
+     * subscribed to the Item, the Item will be unsubscribed from the Data
+     * Adapter, triggering a call to {@link DataProvider#unsubscribe(String)}.
+     * In this case, this invocation will return only after unsubscribe() has
+     * returned.
+     *
+     * @param itemName  The name of the Item whose Subscription should no longer
+     * be enforced.
+     */
+    public void unforceSubscription(@Nonnull String itemName);
 
     /**
      * Called by a Data Adapter to notify Lightstreamer Kernel of the
