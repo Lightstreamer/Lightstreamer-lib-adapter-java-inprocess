@@ -43,7 +43,7 @@ public class MpnSubscriptionInfo {
     public MpnSubscriptionInfo(
             @Nonnull MpnDeviceInfo device,
             @Nonnull String notification,
-            @Nonnull String trigger) {
+            @Nullable String trigger) {
         
         _device= device;
         _notification= notification;
