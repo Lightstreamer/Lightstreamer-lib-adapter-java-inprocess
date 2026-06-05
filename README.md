@@ -15,7 +15,7 @@ In case you want to use Eclipse for developing and running your own Adapter Set,
 
 ## Compatibility
 
-The library is compatible with Lightstreamer Server since xxxxx.
+The library is compatible with Lightstreamer Server since 7.4.8.
 
 For a version of this library compatible with earlier versions of Lightstreamer Server see [this tag](https://github.com/Lightstreamer/Lightstreamer-lib-adapter-java-inprocess/tree/v7.4.1).
 
